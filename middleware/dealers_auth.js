@@ -11,7 +11,7 @@ const auth = async (req, res, next) => {
             throw new Error()
         }
 
-        req.user = user
+        req.dealer_user = user
         req.token = token
         next()
     }catch(e){
