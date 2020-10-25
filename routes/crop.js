@@ -22,8 +22,10 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
                 throw new Error('Thumbnail pic is required')
             }
             const thumbnail_pic = req.files['thumbnail'][0].filename
-            pics_url = all_file.map((file) => {return file.filename})
-            crop.snapshots = pics_url
+            if(all_file){
+                pics_url = all_file.map((file) => {return file.filename})
+                crop.snapshots = pics_url
+            }
             crop.thumbnail = thumbnail_pic
         }else{
             throw new Error('Something went wrong please try again')
@@ -43,7 +45,7 @@ router.get('/view/:id',farmer_auth, async(req, res)=> {
         const crop = await Crop.findOne({_id:req.params.id, owner: req.farmer_auth._id})
 
         if(!crop){
-            res.status(404).send()
+            return res.status(404).send()
         }
 
         res.send(crop)
@@ -54,4 +56,137 @@ router.get('/view/:id',farmer_auth, async(req, res)=> {
 
 })
 
+//on-sale list for farmers
+router.get('/view/all',farmer_auth, async(req, res)=>{
 
+    try{
+        const list_crops = await Crop.find({owner: req.farmer_user._id})
+
+        if(list_crops.length === 0){
+            return res.status(404).send()
+        }
+
+        res.send(list_crops)
+
+    }catch(e){
+        res.status(400).send(e)
+    }
+
+})
+
+//view biddings on particular crop
+router.get('/bids/:id', farmer_auth, async(req, res)=>{
+
+    try{
+        const crop = await Crop.findOne({_id:req.params.id, owner: req.farmer_user._id})
+
+        if(!crop){
+            return res.status(404).send()
+        }
+
+        const bids = crop.biddings
+        res.send(bids)
+
+    }catch(e){
+        res.status(400).send(e)
+    }
+
+})
+
+//edit the crop info
+router.patch('/update/:id', farmer_auth, async(req, res) => {
+    
+    try{
+        const crop = await Crop.findOne({_id: req.params.id, owner: req.farmer_user.id})
+
+        if(!crop){
+            return res.status(404).send()
+        }
+
+        const updates = Object.keys(req.body)
+
+        updates.forEach((update) => {
+            crop[update] = req.body[update]
+        })
+
+        await crop.save()
+        res.send(crop)
+    }catch(e){
+        res.status(400).send(e)
+    }
+
+})
+
+//dealers to bid on crop
+router.post('/bid/:id', dealer_auth, async(req, res)=>{
+
+    try{
+
+        const crop = await Crop.findById(req.params.id)
+
+        if(!crop){
+            res.status(404).send()
+        }
+
+        const bid = {
+            dealer: req.dealer_user._id,
+            bid_val: req.body.value
+        }
+
+        crop.biddings.push(bid)
+        await crop.save()
+        res.status(200).send({msg:"bidded successfully"})
+    }catch(e){
+        // console.log(e)
+        res.status(400).send(e)
+    }
+
+})
+
+//view crops using filters
+router.get('/filter', async (req, res) => {
+    
+    let {crop_type, crop_variety, price_min, price_max} = req.query
+
+    let query = {}
+    if(crop_type) query.type = crop_type
+    if(crop_variety) query.variety = crop_variety
+    query.MSP = { $lte: price_max || 1000000000, $gte: price_min || 0 }
+    
+    try{
+        const results = await Crop.find(query)
+
+        if(results.length === 0){
+            return res.status(404).send()
+        }
+
+        res.send(results)
+    }catch(e){
+        // console.log(e)
+        res.status(400).send(e)
+    }
+    
+})
+
+//viewing search query results using search term
+router.get('/search', async(req, res) => {
+
+    try{
+        let crops
+
+        if(!req.query.term){
+            crops = await Crop.find()
+        }else{
+            crops = await Crop.find({ $text: {$search: req.query.term}})
+        }
+        
+        if(crops.length===0) return res.status(404).send()
+        res.send(crops)
+
+    }catch(e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+})
+
+module.exports = router
