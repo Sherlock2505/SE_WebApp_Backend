@@ -3,8 +3,9 @@ const Farmer = require('./Farmer.model')
 
 const cropSchema = new mongoose.Schema({
     name:{type: String, required: true},
-    Quantity:{type: Number, required: true},
-    description: {type: String, required: true},
+    quantity:{type: Number, required: true},
+    type:{type:String, required: true},
+    variety: {type: String, required: true},
     MSP:{type:Number, required:true},
     owner: {type:mongoose.Schema.Types.ObjectId, required: true},
     biddings:[
@@ -17,5 +18,8 @@ const cropSchema = new mongoose.Schema({
     snapshots: [String]
 })
 
+cropSchema.index({name:'text', variety:'text', type:'text'})
 const Crop = mongoose.model('crops', cropSchema)
+Crop.createIndexes()
+
 module.exports = Crop
