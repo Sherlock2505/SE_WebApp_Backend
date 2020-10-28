@@ -15,8 +15,8 @@ const connection = require('./db/mongoose')
 const mongoose = require('mongoose')
 const app = express()
 
-const Dealer = require('../models/Dealer.model')
-const Farmer = require('../models/Farmer.model')
+const Dealer = require('./models/Dealer.model')
+const Farmer = require('./models/Farmer.model')
 
 app.use(express.json())
 app.use(cors())
@@ -47,7 +47,7 @@ app.post('/login', async (req, res) => {
 	}
 })
 
-const port = process.env.PORT
+const port = process.env.PORT || 5000
 app.listen(port, () => {
     console.log('Server is up at port '+port)
 })
