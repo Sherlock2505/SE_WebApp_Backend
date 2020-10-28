@@ -28,7 +28,7 @@ const dealerSchema = new mongoose.Schema({
     dealertype: {
         type: String,
         required: true,
-    }
+    },
     location: {type: String, required: true},
     pincode: {type:Number, required: true},
     tokens:[{
