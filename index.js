@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 
 //Models exported
 const farmerUser = require('./models/Farmer.model')
@@ -18,6 +19,8 @@ const Dealer = require('../models/Dealer.model')
 const Farmer = require('../models/Farmer.model')
 
 app.use(express.json())
+app.use(cors())
+
 app.use('/farmer', farmerRouter)
 app.use('/dealer', dealerRouter)
 app.use('/crops',cropRouter)
