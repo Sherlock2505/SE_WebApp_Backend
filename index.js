@@ -30,13 +30,13 @@ app.post('/login', async (req, res) => {
 		const farmer_user = await Farmer.findByCredentials(req.body.phone, req.body.password)
 		if(farmer_user !== null){
 			const token = await farmer_user.generateAuthToken()
-	    	res.send({farmer_user, token, userType: "farmer"})
+	    	res.send({user: farmer_user, token, userType: "farmer"})
 	    	return
 		}
 	    const dealer_user = await Dealer.findByCredentials(req.body.phone, req.body.password)
 	    if(dealer_user !== null){
 	    	const token = await dealer_user.generateAuthToken()
-        	res.send({dealer_user, token, userType: "dealer"})
+        	res.send({user: dealer_user, token, userType: "dealer"})
         	return
 	    }
 

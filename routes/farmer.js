@@ -13,7 +13,7 @@ router.post('/signup', async (req, res) => {
     try{
         await farmer_user.save()
         const token = await farmer_user.generateAuthToken()
-        res.status(201).send({farmer_user, token})
+        res.status(201).send({user: farmer_user, token})
     }catch(e){
         res.status(400).send(e)
     }

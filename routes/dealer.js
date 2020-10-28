@@ -13,7 +13,7 @@ router.post('/signup', async (req, res) => {
     try{
         await dealer_user.save()
         const token = await dealer_user.generateAuthToken()
-        res.status(201).send({dealer_user, token})
+        res.status(201).send({user: dealer_user, token})
     }catch(e){
         res.status(400).send(e)
     }
