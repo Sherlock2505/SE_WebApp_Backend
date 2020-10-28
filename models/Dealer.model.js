@@ -25,6 +25,10 @@ const dealerSchema = new mongoose.Schema({
     },
     age:{type: Number, required: true},
     dp_url:{type: String},
+    dealertype: {
+        type: String,
+        required: true,
+    }
     location: {type: String, required: true},
     pincode: {type:Number, required: true},
     tokens:[{
