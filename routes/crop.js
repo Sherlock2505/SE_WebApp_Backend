@@ -43,7 +43,7 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
 router.get('/view/all', farmer_auth, async(req, res) => {
     
     try{
-        const crop_list = await Crop.findOne({ owner: req.farmer_user._id})
+        const crop_list = await Crop.find({ owner: req.farmer_user._id})
 
         if(crop_list.length===0){
             return res.status(404).send(e)
