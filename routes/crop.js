@@ -39,10 +39,29 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
 
 })
 
+//on-sale list for farmers
+router.get('/view/all', farmer_auth, async(req, res) => {
+    
+    try{
+        const crop_list = await Crop.findOne({ owner: req.farmer_user._id})
+
+        if(crop_list.length===0){
+            return res.status(404).send(e)
+        }
+
+        res.send(crop_list)
+
+    }catch(e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+
+})
+
 router.get('/view/:id',farmer_auth, async(req, res)=> {
     
     try{
-        const crop = await Crop.findOne({_id:req.params.id, owner: req.farmer_auth._id})
+        const crop = await Crop.findOne({_id:req.params.id, owner: req.farmer_user._id})
 
         if(!crop){
             return res.status(404).send()
@@ -51,24 +70,7 @@ router.get('/view/:id',farmer_auth, async(req, res)=> {
         res.send(crop)
 
     }catch(e){
-        res.status(400).send(e)
-    }
-
-})
-
-//on-sale list for farmers
-router.get('/view/all',farmer_auth, async(req, res)=>{
-
-    try{
-        const list_crops = await Crop.find({owner: req.farmer_user._id})
-
-        if(list_crops.length === 0){
-            return res.status(404).send()
-        }
-
-        res.send(list_crops)
-
-    }catch(e){
+        console.log(e)
         res.status(400).send(e)
     }
 

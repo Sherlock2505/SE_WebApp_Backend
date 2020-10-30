@@ -10,11 +10,12 @@ const auth = async (req, res, next) => {
         if(!user){
             throw new Error()
         }
-
+        
         req.farmer_user = user
         req.token = token
         next()
     }catch(e){
+        console.log(e)
         res.status(401).send({error: 'Please authenticate.' })    
     }
 }
