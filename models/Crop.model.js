@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Farmer = require('./Farmer.model')
+const faqschema = require('./faq_schema')
 
 const cropSchema = new mongoose.Schema({
     name:{type: String, required: true},
@@ -7,6 +8,8 @@ const cropSchema = new mongoose.Schema({
     type:{type:String, required: true},
     variety: {type: String, required: true},
     MSP:{type:Number, required:true},
+    location:  {type: String, required: true},
+    pincode: {type: Number, required: true},
     owner: {type:mongoose.Schema.Types.ObjectId, required: true, ref:'farmers'},
     biddings:[
         {
@@ -15,10 +18,11 @@ const cropSchema = new mongoose.Schema({
         }
     ],
     thumbnail: {type:String, required:true},
-    snapshots: [String]
+    snapshots: [String],
+    faqs: [faqschema],
 })
 
-cropSchema.index({name:'text', variety:'text', type:'text'})
+cropSchema.index({name:'text', variety:'text', type:'text', location:'text', pincode:'text'})
 const Crop = mongoose.model('crops', cropSchema)
 Crop.createIndexes()
 

@@ -12,7 +12,9 @@ const mongoose = require('mongoose')
 router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{name:'gallery', maxCount:8}]), async (req, res)=>{
     const crop = new Crop({
         ...req.body,
-        owner: req.farmer_user._id
+        owner: req.farmer_user._id,
+        location: req.farmer_user.location,
+        pincode: req.farmer_user.pincode
     })
 
     try{
@@ -148,12 +150,14 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
 //view crops using filters
 router.get('/filter', async (req, res) => {
     
-    let {crop_type, crop_variety, price_min, price_max} = req.query
+    let {crop_type, crop_variety, price_min, price_max, qty_min, qty_max, pincode} = req.query
 
     let query = {}
     if(crop_type) query.type = crop_type
     if(crop_variety) query.variety = crop_variety
     query.MSP = { $lte: price_max || 1000000000, $gte: price_min || 0 }
+    query.qty = { $lte: qty_max || 1000000000, $gte: qty_min || 0}
+    if(pincode) query.pincode = pincode
     
     try{
         const results = await Crop.find(query)
@@ -190,5 +194,42 @@ router.get('/search', async(req, res) => {
         res.status(400).send(e)
     }
 })
+
+//Route for asking query regarding product
+router.post('/ask/:id', dealer_auth, async(req, res) => {
+    try{
+        const crop = await Crop.findById(req.params.id)
+        const faq = {
+            question: req.body.question,
+            owner: req.dealer_user._id,
+            name: req.dealer_user.name 
+        }
+        crop.faqs.push(faq)
+        await crop.save()
+        res.status(201).send({msg:"Successfully created"})
+    }catch(e){
+        // console.log(e)
+        res.status(400).send(e)
+    }
+})
+
+//Route for answering question
+router.post('/answer/:id', farmer_auth, async(req,res) => {
+    
+    try{
+        const crop = await Crop.findOne({_id: req.params.id, owner: req.farmer_user._id})
+        if(!crop){
+            return res.status(404).send()
+        }
+        crop.faqs.find((faq) => faq._id.equals(req.body.id)).answer = req.body.answer
+        await crop.save()
+        res.send({msg:"Successfully answered the query"})
+    }catch(e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+
+})
+
 
 module.exports = router

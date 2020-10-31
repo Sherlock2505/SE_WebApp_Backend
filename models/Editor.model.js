@@ -3,7 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
  
-const farmerSchema = new mongoose.Schema({
+const editorSchema = new mongoose.Schema({
     name:{
         type: String,
         required: true,
@@ -19,27 +19,27 @@ const farmerSchema = new mongoose.Schema({
             }
         }
     },
+    verification_url:  {
+        type: String,
+        required: true
+    },
     password: {
         type: String,
         required: true,
     },
     age:{type: Number, required: true},
-    land_acres:{type: Number, required: true},
     dp_url:{type: String},
-    location: {type: String, required: true},
-    pincode: {type:Number, required: true},
     tokens:[{
         token: {
             type: String,
             required: true
         }
     }],
-    fav_blogs:[mongoose.Schema.Types.ObjectId]
 },{
     timestamps: true,
 })
 
-farmerSchema.methods.generateAuthToken = async function () {
+editorSchema.methods.generateAuthToken = async function () {
     const user = this
     // const token = jwt.sign({_id:user._id.toString()}, process.env.JWT_SECRET, {expiresIn: "8 days"})
     const token = jwt.sign({_id:user._id.toString()}, process.env.JWT_SECRET, {expiresIn: "8 days"})
@@ -49,8 +49,8 @@ farmerSchema.methods.generateAuthToken = async function () {
     return token
 }
 
-farmerSchema.statics.findByCredentials = async (phone,password) => {
-    const user = await Farmer.findOne({phone})
+editorSchema.statics.findByCredentials = async (phone,password) => {
+    const user = await Dealer.findOne({phone})
 
     if(!user){
         throw new Error('Unable to Login')
@@ -66,7 +66,7 @@ farmerSchema.statics.findByCredentials = async (phone,password) => {
 }
 
 //hash the password
-farmerSchema.pre('save',async function (next) {
+editorSchema.pre('save',async function (next) {
     const user = this
     
     if(user.isModified('password')){
@@ -76,5 +76,5 @@ farmerSchema.pre('save',async function (next) {
     next()
 })
 
-const Farmer = mongoose.model('farmers',farmerSchema)
-module.exports = Farmer
+const Editor = mongoose.model('experts',editorSchema)
+module.exports = Editor
