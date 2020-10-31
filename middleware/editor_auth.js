@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 const Editor = require('../models/Editor.model')
-
+//editor's authentiaction
 const auth = async (req, res, next) => {
     try{
         const token = req.header('Authorization').replace('Bearer ','')
