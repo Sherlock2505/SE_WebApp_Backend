@@ -195,7 +195,6 @@ router.get('/search', async(req, res) => {
     }
 })
 
-<<<<<<< HEAD
 //Route for asking query regarding product
 router.post('/ask/:id', dealer_auth, async(req, res) => {
     try{
@@ -234,6 +233,3 @@ router.post('/answer/:id', farmer_auth, async(req,res) => {
 
 
 module.exports = router
-=======
-module.exports = router
->>>>>>> fbf949752de08ce6cd6011f34471138704826147
