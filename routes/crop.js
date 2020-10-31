@@ -45,7 +45,7 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
 router.get('/view/all', farmer_auth, async(req, res) => {
     
     try{
-        const crop_list = await Crop.findOne({ owner: req.farmer_user._id})
+        const crop_list = await Crop.find({ owner: req.farmer_user._id})
 
         if(crop_list.length===0){
             return res.status(404).send(e)
@@ -195,6 +195,7 @@ router.get('/search', async(req, res) => {
     }
 })
 
+<<<<<<< HEAD
 //Route for asking query regarding product
 router.post('/ask/:id', dealer_auth, async(req, res) => {
     try{
@@ -233,3 +234,6 @@ router.post('/answer/:id', farmer_auth, async(req,res) => {
 
 
 module.exports = router
+=======
+module.exports = router
+>>>>>>> fbf949752de08ce6cd6011f34471138704826147
