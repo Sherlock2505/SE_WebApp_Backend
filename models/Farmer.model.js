@@ -65,6 +65,30 @@ farmerSchema.statics.findByCredentials = async (phone,password) => {
     return user
 }
 
+farmerSchema.methods.toMyProfile = function () {
+    const user = this
+
+    const userObj = user.toObject()
+    delete userObj.password
+    delete userObj.tokens
+
+    return userObj
+}
+
+//for public profile view
+farmerSchema.methods.toPublicProfile = function () {
+    const user = this
+
+    const userObj = user.toObject()
+    delete userObj.password
+    delete userObj.tokens
+    delete userObj.location
+    delete userObj.pincode
+    delete userObj.fav_blogs
+    
+    return userObj
+}
+
 //hash the password
 farmerSchema.pre('save',async function (next) {
     const user = this

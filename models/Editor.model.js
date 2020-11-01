@@ -50,7 +50,7 @@ editorSchema.methods.generateAuthToken = async function () {
 }
 
 editorSchema.statics.findByCredentials = async (phone,password) => {
-    const user = await Dealer.findOne({phone})
+    const user = await Editor.findOne({phone})
 
     if(!user){
         throw new Error('Unable to Login')
@@ -63,6 +63,16 @@ editorSchema.statics.findByCredentials = async (phone,password) => {
     }
 
     return user
+}
+
+editorSchema.methods.toMyProfile = function () {
+    const user = this
+
+    const userObj = user.toObject()
+    delete userObj.password
+    delete userObj.tokens
+
+    return userObj
 }
 
 //hash the password

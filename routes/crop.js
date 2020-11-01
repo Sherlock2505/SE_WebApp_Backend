@@ -32,10 +32,10 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
         }else{
             throw new Error('Something went wrong please try again')
         }
+
         await crop.save()
         res.send(crop)
     }catch(e){
-        // console.log(e)
         res.status(400).send(e)
     }
 
@@ -60,10 +60,10 @@ router.get('/view/all', farmer_auth, async(req, res) => {
 
 })
 
-router.get('/view/:id',farmer_auth, async(req, res)=> {
+router.get('/view/:id', async(req, res)=> {
     
     try{
-        const crop = await Crop.findOne({_id:req.params.id, owner: req.farmer_user._id})
+        const crop = await Crop.findOne({_id:req.params.id})
 
         if(!crop){
             return res.status(404).send()

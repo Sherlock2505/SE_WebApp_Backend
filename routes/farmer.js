@@ -70,4 +70,18 @@ router.patch('/update', auth, upload.single('prof_pic'), async (req, res) => {
 
 })
 
+router.get('/view/me', auth, async(req, res) => {
+    res.send(req.farmer_user.toMyProfile())
+})
+
+router.get('/view/public/:id', async(req, res) => {
+    try{
+        const farmer = await Farmer.findById(req.params.id)
+        if(!farmer) return res.status(404).send()
+        res.send(farmer.toPublicProfile())
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
 module.exports = router

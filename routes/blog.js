@@ -9,7 +9,7 @@ const upload = require('../db/upload')
 const mongoose = require('mongoose')
 const Blog = require('../models/Blog.model')
 
-router.post('/create', editor_auth, upload.single('thummbnail'), async(req, res) => {
+router.post('/create', editor_auth, upload.single('thumbnail'), async(req, res) => {
     if(!req.file){
         return res.status(404).send({error: "Thumbnail pic is required"})
     }
@@ -31,6 +31,34 @@ router.post('/create', editor_auth, upload.single('thummbnail'), async(req, res)
         res.status(400).send(e)
     }
 
+})
+
+//view blog
+router.get('/single/:id', farmer_auth, async(req, res) => {
+    try{
+        const blog = await Blog.findById(req.params.id)
+    
+        if(!blog){
+            res.status(404).send()
+        }
+
+        res.send(blog)
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
+//view all blogs posted by editor
+router.get('/all', editor_auth, async(req, res) => {
+    try{
+        const blogs  = await Blog.find({owner: req.editor_user._id})
+
+        if(blog.length===0) return res.status(404).send()
+
+        res.send(blogs)
+    }catch(e){
+        res.status(400).send(e)
+    }
 })
 
 //upvote a blog by farmers
@@ -77,14 +105,14 @@ router.post('/favs/:id', farmer_auth, async(req, res) => {
 router.post('/comment/:id', farmer_auth, async(req, res) => {
 
     try{
-        const blog = await Blog.findbyId(req.params.id)
+        const blog = await Blog.findById(req.params.id)
 
         if(!blog){
             return res.status(404).send()
         }
 
         const comment = {
-            body: req.body,
+            body: req.body.body,
             owner: req.farmer_user._id,
             name: req.farmer_user.name
         }
@@ -94,6 +122,7 @@ router.post('/comment/:id', farmer_auth, async(req, res) => {
         res.send({msg: "commented successfully"})
 
     }catch(e){
+        console.log(e)
         res.status(400).send(e)
     }
 })

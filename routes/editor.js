@@ -2,7 +2,7 @@ const express = require('express')
 const router = new express.Router()
 const Editor = require('../models/Editor.model')
 const multer = require('multer')
-const auth = require('../middleware/Editor_auth')
+const auth = require('../middleware/editor_auth')
 const upload = require('../db/upload')
 const mongoose = require('mongoose')
 
@@ -33,6 +33,7 @@ router.post('/login', async (req, res) => {
         const token = await editor_user.generateAuthToken()
         res.send({editor_user, token})
     }catch(e){
+        console.log(e)
         res.status(400).send(e)
     }
 
@@ -74,6 +75,10 @@ router.patch('/update', auth, upload.single('prof_pic'), async (req, res) => {
         res.status(400).send(e)
     }
 
+})
+
+router.get('/view/me', auth, async(req, res) => {
+    res.send(req.editor_user.toMyProfile())
 })
 
 module.exports = router

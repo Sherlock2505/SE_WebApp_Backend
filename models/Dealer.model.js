@@ -67,6 +67,29 @@ dealerSchema.statics.findByCredentials = async (phone,password) => {
     return user
 }
 
+dealerSchema.methods.toMyProfile = function () {
+    const user = this
+
+    const userObj = user.toObject()
+    delete userObj.password
+    delete userObj.tokens
+
+    return userObj
+}
+
+//for public profile view
+dealerSchema.methods.toPublicProfile = function () {
+    const user = this
+
+    const userObj = user.toObject()
+    delete userObj.password
+    delete userObj.tokens
+    delete userObj.location
+    delete userObj.pincode
+    
+    return userObj
+}
+
 //hash the password
 dealerSchema.pre('save',async function (next) {
     const user = this
