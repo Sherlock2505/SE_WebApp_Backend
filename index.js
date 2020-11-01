@@ -31,22 +31,23 @@ app.use('/editor', editorRouter)
 app.post('/login', async (req, res) => {
 	try{
 		const farmer_user = await farmerUser.findByCredentials(req.body.phone, req.body.password)
-		if(farmer_user !== null){
+		if(farmer_user){
 			const token = await farmer_user.generateAuthToken()
 	    	res.send({user: farmer_user, token, userType: "farmer"})
-	    	return
 		}
-	    const dealer_user = await dealerUser.findByCredentials(req.body.phone, req.body.password)
-	    if(dealer_user !== null){
-	    	const token = await dealer_user.generateAuthToken()
-        	res.send({user: dealer_user, token, userType: "dealer"})
-        	return
-	    }
-
-	    res.status(400).send({msg: "given credentials are incorrect"})
 	}
 	catch (err){
-		res.status(400).send({err})
+		try {
+			const dealer_user = await dealerUser.findByCredentials(req.body.phone, req.body.password)
+			if(dealer_user){
+				const token = await dealer_user.generateAuthToken()
+				console.log(token)
+				res.send({user: dealer_user, token, userType: "dealer"})
+			}
+		} 
+		catch (err) {
+			res.status(400).send({msg: "wrong credentials"})
+		}
 	}
 })
 
