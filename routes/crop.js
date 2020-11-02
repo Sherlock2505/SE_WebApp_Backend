@@ -42,19 +42,14 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
 
 })
 
-//on-sale list for farmers ?sold=true
+//on-sale or sold out list for farmers ?sold=true
 router.get('/view', farmer_auth, async(req, res) => {
     
     try{
-        var sold
-        if(!req.query.sold){
-            sold = false
-        }
-        sold = req.query.sold
-        const crop_list = await Crop.find({ owner: req.farmer_user._id, sold})
+        const crop_list = await Crop.find({ owner: req.farmer_user._id, sold: req.query.sold || false})
 
         if(crop_list.length===0){
-            return res.status(404).send(e)
+            return res.status(404).send()
         }
 
         res.send(crop_list)
@@ -80,6 +75,17 @@ router.get('/view/:id', async(req, res)=> {
     }catch(e){
         console.log(e)
         res.status(400).send(e)
+    }
+
+})
+
+//selling the crops or making sold=true
+router.post('/sell/:id', farmer_auth, async(req, res) => {
+    
+    try{
+        
+    }catch(e){
+
     }
 
 })
