@@ -14,7 +14,8 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
         ...req.body,
         owner: req.farmer_user._id,
         location: req.farmer_user.location,
-        pincode: req.farmer_user.pincode
+        pincode: req.farmer_user.pincode,
+        sold: false
     })
 
     try{
@@ -41,11 +42,16 @@ router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{
 
 })
 
-//on-sale list for farmers
-router.get('/view/all', farmer_auth, async(req, res) => {
+//on-sale list for farmers ?sold=true
+router.get('/view', farmer_auth, async(req, res) => {
     
     try{
-        const crop_list = await Crop.find({ owner: req.farmer_user._id})
+        var sold
+        if(!req.query.sold){
+            sold = false
+        }
+        sold = req.query.sold
+        const crop_list = await Crop.find({ owner: req.farmer_user._id, sold})
 
         if(crop_list.length===0){
             return res.status(404).send(e)
@@ -150,15 +156,18 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
 //view crops using filters
 router.get('/filter', async (req, res) => {
     
-    let {crop_type, crop_variety, price_min, price_max, qty_min, qty_max, pincode} = req.query
-
+    let {crop_type, crop_variety, price_min, price_max, qty_min, qty_max, pincode, sold} = req.query
+    
     let query = {}
+    query.sold = false
     if(crop_type) query.type = crop_type
     if(crop_variety) query.variety = crop_variety
     query.MSP = { $lte: price_max || 1000000000, $gte: price_min || 0 }
-    query.qty = { $lte: qty_max || 1000000000, $gte: qty_min || 0}
+    query.quantity = { $lte: qty_max || 1000000000, $gte: qty_min || 0}
     if(pincode) query.pincode = pincode
+    if(sold) query.sold = sold
     
+    console.log(query)
     try{
         const results = await Crop.find(query)
 

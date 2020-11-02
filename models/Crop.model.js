@@ -17,6 +17,7 @@ const cropSchema = new mongoose.Schema({
             bid_val: {type:Number, required:true},
         }
     ],
+    sold: {type:Boolean, required: true},
     thumbnail: {type:String, required:true},
     snapshots: [String],
     faqs: [faqschema],
