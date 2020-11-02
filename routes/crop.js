@@ -80,12 +80,19 @@ router.get('/view/:id', async(req, res)=> {
 })
 
 //selling the crops or making sold=true
-router.post('/sell/:id', farmer_auth, async(req, res) => {
+router.post('/sold/:id', farmer_auth, async(req, res) => {
     
     try{
-        
-    }catch(e){
+        const crop = await Crop.findOne({_id: req.params.id, owner: req.farmer_user._id})
 
+        if(!crop) return res.status(404).send()
+
+        crop.sold = true
+        await crop.save()
+        res.send({msg: "sold out successfully"})
+    }catch(e){
+        // console.log(e)
+        res.status(400).send(e)
     }
 
 })

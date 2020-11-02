@@ -14,6 +14,7 @@ const dealerRouter = require('./routes/dealer')
 const cropRouter = require('./routes/crop')
 const editorRouter = require('./routes/editor')
 const blogRouter = require('./routes/blog')
+const imageRouter = require('./routes/supporting/images')
 
 const connection = require('./db/mongoose')
 const mongoose = require('mongoose')
@@ -27,6 +28,7 @@ app.use('/dealer', dealerRouter)
 app.use('/crops',cropRouter)
 app.use('/blogs',blogRouter)
 app.use('/editor', editorRouter)
+app.use('/images',imageRouter)
 
 app.post('/login', async (req, res) => {
 	try{
