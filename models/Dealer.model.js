@@ -84,8 +84,6 @@ dealerSchema.methods.toPublicProfile = function () {
     const userObj = user.toObject()
     delete userObj.password
     delete userObj.tokens
-    delete userObj.location
-    delete userObj.pincode
     
     return userObj
 }

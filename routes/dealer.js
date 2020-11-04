@@ -70,4 +70,14 @@ router.patch('/update', auth, upload.single('prof_pic'), async (req, res) => {
 
 })
 
+router.get('/view/public/:id', async(req, res) => {
+    try{
+        const dealer = await Dealer.findById(req.params.id)
+        if(!dealer) return res.status(404).send()
+        res.send(dealer.toPublicProfile())
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
 module.exports = router
