@@ -29,6 +29,7 @@ const dealerSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    bidcrops: [mongoose.Schema.Types.ObjectId],
     location: {type: String, required: true},
     pincode: {type:Number, required: true},
     tokens:[{

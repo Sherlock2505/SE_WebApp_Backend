@@ -15,6 +15,7 @@ const cropSchema = new mongoose.Schema({
         {
             dealer: {type:mongoose.Schema.Types.ObjectId, required: true},
             bid_val: {type:Number, required:true},
+            status: {type:String, required:true}
         }
     ],
     sold: {type:Boolean, required: true},

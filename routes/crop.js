@@ -88,6 +88,11 @@ router.post('/sold/:id', farmer_auth, async(req, res) => {
         if(!crop) return res.status(404).send()
 
         crop.sold = true
+
+        crops.biddings.forEach((bid) => {
+            bid.status = 'sold'
+        })
+
         await crop.save()
         res.send({msg: "sold out successfully"})
     }catch(e){
@@ -153,17 +158,59 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
 
         const bid = {
             dealer: req.dealer_user._id,
-            bid_val: req.body.value
+            bid_val: req.body.value,
+            status: 'active'
         }
 
         crop.biddings.push(bid)
         await crop.save()
+        req.dealer_user.bidcrops.push(crop._id)
+        await req.dealer_user.save()
         res.status(200).send({msg:"bidded successfully"})
     }catch(e){
         // console.log(e)
         res.status(400).send(e)
     }
 
+})
+
+//farmers accepting the bids from available bids
+router.post('/bid/accept/:crop_id/:bid_id', farmer_auth, (req, res)=> {
+
+    try{
+        const crop = await Crop.find({_id: req.params.crop_id, owner: req.farmer_user._id})
+        if(!crop) res.status(404).send()
+
+        crop.biddings.forEach((bid) => {
+            if(bid._id.equals(req.params.bid_id)){
+                bid.status = 'accepted'
+            }
+        })
+        await crop.save()
+        res.status(200).send({msg: "successfully accepted the bid."})
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
+//dealers to get view of crops according to their bids
+router.get('/view/bids', dealer_auth, async(req, res) => {
+    try{
+        const crops = req.dealer_user.bidcrops.map(async (crop_id) => { return await Crop.findById(crop_id)})
+
+        if(crops.length===0) return res.status(404).send()
+        const response_crops = crops.filter((crop) => {
+            crop.biddings.forEach((bid) => {
+                return (bid.dealer.equals(req.dealer_user._id) && (bid.status===req.query.bid_status))
+            })
+        })
+
+        if(response_crops.length===0) return res.status(404).send()
+        res.send(response_crops)
+    }catch(e){
+        res.status(400).send(e)
+    }
+    
 })
 
 //view crops using filters
