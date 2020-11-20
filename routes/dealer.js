@@ -5,6 +5,7 @@ const multer = require('multer')
 const auth = require('../middleware/dealers_auth')
 const upload = require('../db/upload')
 const mongoose = require('mongoose')
+const Crop = require('../models/Crop.model')
 
 router.post('/signup', async (req, res) => {
 
@@ -68,6 +69,41 @@ router.patch('/update', auth, upload.single('prof_pic'), async (req, res) => {
         res.status(400).send(e)
     }
 
+})
+
+router.get('/view/me', auth, async(req, res) => {
+    res.send(req.dealer_user.toMyProfile())
+})
+
+//dealers to get view of crops according to their bids
+router.get('/view/bids', auth, async(req, res) => {
+    try{
+        let crops = []
+        
+        for(let i=0;i<req.dealer_user.bidcrops.length;i+=1){
+            const crop = await Crop.findById(req.dealer_user.bidcrops[i])
+            crops.push(crop)
+        }
+
+        if(crops.length===0) return res.status(404).send()
+        crops = crops.filter((crop) => {
+            let flag = false
+            for(let i=0;i<crop.biddings.length;i+=1){
+                if(crop.biddings[i].dealer.equals(req.dealer_user._id) && crop.biddings[i].status == req.query.bid_status){
+                    flag = true
+                    break
+                }
+            }
+            return flag
+        })
+
+        if(crops.length===0) return res.status(404).send()
+        res.send(crops)
+    }catch(e){
+        console.log(e)
+        res.status(400).send(e)
+    }
+    
 })
 
 router.get('/view/public/:id', async(req, res) => {

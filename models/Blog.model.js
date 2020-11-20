@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const comments = require('./comment_schema')
 
 const blogSchema = new mongoose.Schema({
     title:{type: String, required: true},
@@ -7,7 +6,7 @@ const blogSchema = new mongoose.Schema({
     content: {type: String, required: true},
     thumbnail: {type: String, required: true},
     owner: {type:mongoose.Schema.Types.ObjectId, required: true, ref:'experts'},
-    comments: [comments],
+    comments: [{type:mongoose.Schema.Types.ObjectId, ref:'comments'}],
     meta:{
         upv: {type: Number},
         favs: {type: Number}
@@ -15,5 +14,4 @@ const blogSchema = new mongoose.Schema({
 })
 
 const Blog = mongoose.model('blogs', blogSchema)
-
 module.exports = Blog

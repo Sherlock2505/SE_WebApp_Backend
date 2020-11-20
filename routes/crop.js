@@ -89,7 +89,7 @@ router.post('/sold/:id', farmer_auth, async(req, res) => {
 
         crop.sold = true
 
-        crops.biddings.forEach((bid) => {
+        crop.biddings.forEach((bid) => {
             bid.status = 'sold'
         })
 
@@ -152,7 +152,7 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
 
         const crop = await Crop.findById(req.params.id)
 
-        if(!crop){
+        if(!crop || crop.sold){
             res.status(404).send()
         }
 
@@ -164,7 +164,7 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
 
         crop.biddings.push(bid)
         await crop.save()
-        req.dealer_user.bidcrops.push(crop._id)
+        if(!req.dealer_user.bidcrops.includes(crop._id)) req.dealer_user.bidcrops.push(crop._id)
         await req.dealer_user.save()
         res.status(200).send({msg:"bidded successfully"})
     }catch(e){
@@ -175,42 +175,26 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
 })
 
 //farmers accepting the bids from available bids
-router.post('/bid/accept/:crop_id/:bid_id', farmer_auth, (req, res)=> {
+router.post('/bid/accept/:crop_id/:bid_id', farmer_auth, async (req, res)=> {
 
     try{
-        const crop = await Crop.find({_id: req.params.crop_id, owner: req.farmer_user._id})
-        if(!crop) res.status(404).send()
+        const crop = await Crop.findOne({_id: req.params.crop_id, owner: req.farmer_user._id})
 
+        if(!crop) return res.status(404).send()
+    
         crop.biddings.forEach((bid) => {
             if(bid._id.equals(req.params.bid_id)){
                 bid.status = 'accepted'
+                return
             }
         })
+
         await crop.save()
         res.status(200).send({msg: "successfully accepted the bid."})
     }catch(e){
+        console.log(e)
         res.status(400).send(e)
     }
-})
-
-//dealers to get view of crops according to their bids
-router.get('/view/bids', dealer_auth, async(req, res) => {
-    try{
-        const crops = req.dealer_user.bidcrops.map(async (crop_id) => { return await Crop.findById(crop_id)})
-
-        if(crops.length===0) return res.status(404).send()
-        const response_crops = crops.filter((crop) => {
-            crop.biddings.forEach((bid) => {
-                return (bid.dealer.equals(req.dealer_user._id) && (bid.status===req.query.bid_status))
-            })
-        })
-
-        if(response_crops.length===0) return res.status(404).send()
-        res.send(response_crops)
-    }catch(e){
-        res.status(400).send(e)
-    }
-    
 })
 
 //view crops using filters
@@ -265,9 +249,9 @@ router.get('/search', async(req, res) => {
 })
 
 //Route for asking query regarding product
-router.post('/ask/:id', dealer_auth, async(req, res) => {
+router.post('/ask/:crop_id', dealer_auth, async(req, res) => {
     try{
-        const crop = await Crop.findById(req.params.id)
+        const crop = await Crop.findById(req.params.crop_id)
         const faq = {
             question: req.body.question,
             owner: req.dealer_user._id,
@@ -283,14 +267,14 @@ router.post('/ask/:id', dealer_auth, async(req, res) => {
 })
 
 //Route for answering question
-router.post('/answer/:id', farmer_auth, async(req,res) => {
+router.post('/answer/:crop_id/:faq_id', farmer_auth, async(req,res) => {
     
     try{
-        const crop = await Crop.findOne({_id: req.params.id, owner: req.farmer_user._id})
+        const crop = await Crop.findOne({_id: req.params.crop_id, owner: req.farmer_user._id})
         if(!crop){
             return res.status(404).send()
         }
-        crop.faqs.find((faq) => faq._id.equals(req.body.id)).answer = req.body.answer
+        crop.faqs.find((faq) => faq._id.equals(req.params.faq_id)).answer = req.body.answer
         await crop.save()
         res.send({msg:"Successfully answered the query"})
     }catch(e){
