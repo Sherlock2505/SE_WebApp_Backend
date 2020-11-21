@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
- 
+
 const farmerSchema = new mongoose.Schema({
     name:{
         type: String,
@@ -34,7 +34,8 @@ const farmerSchema = new mongoose.Schema({
             required: true
         }
     }],
-    fav_blogs:[mongoose.Schema.Types.ObjectId],
+    fav_blogs:[{type: mongoose.Schema.Types.ObjectId, ref:'blogs'}],
+    notifications: [{type: mongoose.Schema.Types.ObjectId, ref:'notifications'}]
 },{
     timestamps: true,
 })
