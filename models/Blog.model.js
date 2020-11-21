@@ -10,7 +10,10 @@ const blogSchema = new mongoose.Schema({
     meta:{
         upv: {type: Number},
         favs: {type: Number}
-    }
+    },
+    tags: [{type:mongoose.Schema.Types.ObjectId, ref:'tags', required: true}]
+},{
+    timestamps: true
 })
 
 const Blog = mongoose.model('blogs', blogSchema)
