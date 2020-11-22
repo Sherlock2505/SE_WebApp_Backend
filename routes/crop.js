@@ -8,6 +8,7 @@ const dealer_auth = require('../middleware/dealers_auth')
 const farmer_auth = require('../middleware/farmer_auth')
 const upload = require('../db/upload')
 const mongoose = require('mongoose')
+const Notification = require('../models/Notify.model')
 
 router.post('/sell',farmer_auth, upload.fields([{name:'thumbnail', maxCount:1},{name:'gallery', maxCount:8}]), async (req, res)=>{
     const crop = new Crop({
@@ -156,12 +157,22 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
             res.status(404).send()
         }
 
+        const owner = await Farmer.findById(crop.owner)
+
         const bid = {
             dealer: req.dealer_user._id,
             bid_val: req.body.value,
             status: 'active'
         }
 
+        const not = new Notification({
+            msg: `A new bid is placed on crop ${crop.name}`,
+            url: req.body.url
+        })
+
+        await not.save()
+        owner.notifications.push(not._id)
+        await owner.save() 
         crop.biddings.push(bid)
         await crop.save()
         if(!req.dealer_user.bidcrops.includes(crop._id)) req.dealer_user.bidcrops.push(crop._id)
@@ -181,16 +192,29 @@ router.post('/bid/accept/:crop_id/:bid_id', farmer_auth, async (req, res)=> {
         const crop = await Crop.findOne({_id: req.params.crop_id, owner: req.farmer_user._id})
 
         if(!crop) return res.status(404).send()
-    
+        
+        let bidder;
         crop.biddings.forEach((bid) => {
             if(bid._id.equals(req.params.bid_id)){
                 bid.status = 'accepted'
+                bidder = bid.dealer
                 return
             }
         })
 
+        const dealer = await Dealer.findById(bidder)
+        
+        const not = new Notification({
+            msg: `Your bid has been accepted for ${crop.name}`,
+            url: req.body.url
+        })
+
+        await not.save()
+        dealer.notifications.push(not._id)
+        await dealer.save()
         await crop.save()
         res.status(200).send({msg: "successfully accepted the bid."})
+        
     }catch(e){
         console.log(e)
         res.status(400).send(e)

@@ -84,4 +84,26 @@ router.get('/view/public/:id', async(req, res) => {
     }
 })
 
+//view notifications
+router.get('/notifications/view', auth, async(req, res) => {
+    try{
+        await req.farmer_user.populate({
+            path: 'notifications'   
+        }).execPopulate()
+        res.send(req.farmer_user.notifications)
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
+//delete notification
+router.post('/notifications/delete/:id', auth, async(req, res) => {
+    try{
+        const not = await Notification.deleteOne({_id: req.params._id})
+        res.send({msg: "deleted notification"})
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
 module.exports = router

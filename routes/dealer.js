@@ -6,6 +6,7 @@ const auth = require('../middleware/dealers_auth')
 const upload = require('../db/upload')
 const mongoose = require('mongoose')
 const Crop = require('../models/Crop.model')
+const Notification = require('../models/Notify.model')
 
 router.post('/signup', async (req, res) => {
 
@@ -111,6 +112,28 @@ router.get('/view/public/:id', async(req, res) => {
         const dealer = await Dealer.findById(req.params.id)
         if(!dealer) return res.status(404).send()
         res.send(dealer.toPublicProfile())
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
+//view notifications
+router.get('/notifications/view', auth, async(req, res) => {
+    try{
+        await req.dealer_user.populate({
+            path: 'notifications'   
+        }).execPopulate()
+        res.send(req.dealer_user.notifications)
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
+//delete notification
+router.post('/notifications/delete/:id', auth, async(req, res) => {
+    try{
+        const not = await Notification.deleteOne({_id: req.params._id})
+        res.send({msg: "deleted notification"})
     }catch(e){
         res.status(400).send(e)
     }
