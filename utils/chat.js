@@ -12,7 +12,7 @@ const onConnection = socket => {
 
 const onExpertConnection = socket => {
 	const expertDetails = socket.handshake.query
-	console.log(expertDetails)
+	console.log("expert", expertDetails)
 
 	const { language, chatType } = expertDetails
 
@@ -31,19 +31,24 @@ const onExpertConnection = socket => {
 
 const onUserConnection = socket => {
 	const userDetails = socket.handshake.query
-	console.log(userDetails)
+	console.log("user", userDetails)
 
-	const { language, chatType } = expertDetails
+	const { language, chatType } = userDetails
 
 	const chat = `${language}${chatType}`
 
 	const expertList = experts[chat]
 	
-	const expert = expertList.splice(Math.floor(Math.random()*expertList.length), 1)
+	const expert = expertList.splice(Math.floor(Math.random()*expertList.length), 1)[0]
+
+	// console.log(expert)
 
 	expert['socket'].emit("userConnected", userDetails)
 
-	socket.emit("expertConnected", expert)
+	let expertData = {...expert}
+	delete expertData['socket']
+
+	socket.emit("expertConnected", expertData)
 
 	socket.on('disconnect', () => {
 		console.log("user disconnected...")
@@ -53,5 +58,6 @@ const onUserConnection = socket => {
 
 module.exports = {
 	onConnection,
-	onExpertConnection
+	onExpertConnection,
+	onUserConnection
 }
