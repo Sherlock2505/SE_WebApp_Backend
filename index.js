@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const socketio = require('socket.io')
-const { onConnection } = require('./utils/chat')
+const { onConnection, onExpertConnection } = require('./utils/chat')
 
 //Models exported
 const farmerUser = require('./models/Farmer.model')
@@ -71,6 +71,8 @@ const server = app.listen(port, ip, () => {
 const io = socketio(server)
 
 io.on('connection', onConnection)
+
+io.of('/experts').on('connection', onExpertConnection)
 
 let gfs
 connection.once('open', () => {
