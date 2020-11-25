@@ -168,7 +168,8 @@ router.post('/bid/:id', dealer_auth, async(req, res)=>{
         const not = new Notification({
             type: "Bid Placed",
             msg: `A new bid is placed on crop ${crop.name}`,
-            url: crop._id 
+            url: crop._id,
+            subject: req.dealer_user._id
         })
 
         await not.save()
@@ -208,7 +209,8 @@ router.post('/bid/accept/:crop_id/:bid_id', farmer_auth, async (req, res)=> {
         const not = new Notification({
             type: "Bid Accepted",
             msg: `Your bid has been accepted for ${crop.name}`,
-            url: crop._id
+            url: crop._id,
+            subject: req.farmer_user._id
         })
 
         await not.save()
