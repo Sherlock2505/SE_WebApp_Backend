@@ -5,7 +5,7 @@ const cors = require('cors')
 const farmerUser = require('./models/Farmer.model')
 const dealerUser = require('./models/Dealer.model')
 const cropModel = require('./models/Crop.model')
-const editorModel = require('./models/Editor.model')
+const editorUser = require('./models/Editor.model')
 const blogModel = require('./models/Blog.model')
 
 //Routes exported
@@ -43,12 +43,22 @@ app.post('/login', async (req, res) => {
 			const dealer_user = await dealerUser.findByCredentials(req.body.phone, req.body.password)
 			if(dealer_user){
 				const token = await dealer_user.generateAuthToken()
-				console.log(token)
+				// console.log(token)
 				res.send({user: dealer_user, token, userType: "dealer"})
 			}
 		} 
 		catch (err) {
-			res.status(400).send({msg: "wrong credentials"})
+			try {
+				const editor_user = await editorUser.findByCredentials(req.body.phone, req.body.password)
+				if(editor_user){
+					const token = await editor_user.generateAuthToken()
+					// console.log(token)
+					res.send({user: editor_user, token, userType: "expert"})
+				}
+			}
+			catch(err){
+				res.status(400).send({msg: "wrong credentials"})
+			}
 		}
 	}
 })
