@@ -23,7 +23,7 @@ blogSchema.methods.recommender = async function(){
     const main_blog = this
     const blogs = await Blog.find()
 
-    const similarity = recommender(main_blog, blogs.content)
+    const similarity = recommender(main_blog.content, blogs.map((blog) => {return blog.content}))
     return similarity
 }
 
