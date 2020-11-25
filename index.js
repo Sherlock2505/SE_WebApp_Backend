@@ -1,9 +1,5 @@
 const express = require('express')
 const cors = require('cors')
-const https = require('https')
-const querystring = require('querystring')
-const request = require('request')
-const axios = require('axios')
 
 //Models exported
 const farmerUser = require('./models/Farmer.model')
