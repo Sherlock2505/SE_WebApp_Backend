@@ -120,7 +120,7 @@ router.get('/view/all', async(req, res) => {
     try{
         const blogs  = await Blog.find({})
 
-        if(blog.length===0) return res.status(404).send()
+        if(blogs.length===0) return res.status(404).send()
 
         res.send(blogs)
     }catch(e){
