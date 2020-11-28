@@ -114,6 +114,11 @@ router.get('/filter/:id', async(req, res) => {
     }
 })
 
+// send all blogs to frontend
+router.get('/view/all', async(req, res) => {
+    res.send(Blog)
+})
+
 //upvote a blog by farmers
 router.post('/upvote/:id', farmer_auth, async(req, res) => {
 
