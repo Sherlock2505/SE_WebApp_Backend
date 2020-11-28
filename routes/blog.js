@@ -74,7 +74,7 @@ router.get('/tags/:id', async(req, res) => {
 })
 
 //view blog
-router.get('/single/:id', farmer_auth, async(req, res) => {
+router.get('/single/:id', async(req, res) => {
     try{
         const blog = await Blog.findById(req.params.id)
     
@@ -102,7 +102,7 @@ router.get('/all', editor_auth, async(req, res) => {
 })
 
 //filter blogs by tag names associated
-router.get('/filter/:id', farmer_auth, async(req, res) => {
+router.get('/filter/:id', async(req, res) => {
     try{
         const tag = await Tag.findById(req.params.id)
         await tag.populate({
