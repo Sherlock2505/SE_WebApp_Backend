@@ -19,13 +19,5 @@ const blogSchema = new mongoose.Schema({
     timestamps: true
 })
 
-blogSchema.methods.recommender = async function(){
-    const main_blog = this
-    const blogs = await Blog.find()
-
-    const similarity = recommender(main_blog.content, blogs.map((blog) => {return blog.content}))
-    return similarity
-}
-
 const Blog = mongoose.model('blogs', blogSchema)
 module.exports = Blog

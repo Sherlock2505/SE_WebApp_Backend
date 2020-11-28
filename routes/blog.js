@@ -10,6 +10,8 @@ const mongoose = require('mongoose')
 const Blog = require('../models/Blog.model')
 const Tag = require('../models/tags.model')
 const Comment = require('../models/comment.model')
+const recommender = require('../utils/recommender')
+const entities = require('entities')
 
 //create blogs
 router.post('/create', editor_auth, upload.single('thumbnail'), async(req, res) => {
@@ -257,6 +259,52 @@ router.post('/comment/reply/:parent_id', farmer_auth, async (req, res) => {
     }catch(e){
         res.status(400).send(e)
     }
+})
+
+//send recommendation
+router.post('/recommend/:user_id/:blog_id', async (req, res) => {
+    try{
+        const user = await Farmer.findById(req.params.user_id)
+        if(!user) throw new Error()
+
+        if(user.fav_blogs.includes(blog_id)) throw new Error({msg: "blog to be recommended already in favourite blogs"})
+        user.populate({
+            path: 'fav_blogs'
+        }).execPopulate()
+
+        const fav_blogs = user.fav_blogs
+        if(fav_blogs.length===0) return res.status(404).send()
+
+        const blog = await Blog.findById(req.params.blog_id)
+
+        if(!blog) throw new Error()
+        
+        fav_blogs = fav_blogs.map((blog) =>  {return entities.decodeHTML(fav_blogs.content)})
+        const similarity = recommender(entities.decodeHTML(blog.content), fav_blogs)
+
+        let average
+        similarity.forEach(sim => {
+            average += sim
+        })
+        average = (average-1)/fav_blogs.length
+        if(average>0.5){
+            const not = new Notification({
+                type: "Blog Recommendation",
+                msg: `The blog with title ${blog.title} is recommended for you`,
+                url: blog._id,
+                subject: blog.owner
+            })
+            await not.save()
+            user.notifications.push(not._id)
+            await user.save()
+            res.send({msg: "Blog recommended successfully based on similarity."})
+        }else{
+            res.send({msg: "Blog can't be recommended based on similarity score."})
+        }
+    }catch(e){
+        res.status(400).send(e)
+    }
+    
 })
 
 module.exports = router
