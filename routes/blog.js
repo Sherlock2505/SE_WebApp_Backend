@@ -116,7 +116,15 @@ router.get('/filter/:id', async(req, res) => {
 
 // send all blogs to frontend
 router.get('/view/all', async(req, res) => {
-    res.send(Blog)
+    try{
+        const blogs  = await Blog.find({})
+
+        if(blog.length===0) return res.status(404).send()
+
+        res.send(blogs)
+    }catch(e){
+        res.status(400).send(e)
+    }
 })
 
 //upvote a blog by farmers
