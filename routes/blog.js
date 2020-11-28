@@ -93,10 +93,11 @@ router.get('/all', editor_auth, async(req, res) => {
     try{
         const blogs  = await Blog.find({owner: req.editor_user._id})
 
-        if(blog.length===0) return res.status(404).send()
+        if(blogs.length===0) return res.status(404).send()
 
         res.send(blogs)
     }catch(e){
+        console.log(e)
         res.status(400).send(e)
     }
 })
