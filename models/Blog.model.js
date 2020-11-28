@@ -1,4 +1,7 @@
 const mongoose = require('mongoose')
+const https = require('https')
+const querystring = require('querystring')
+const recommender = require('../utils/recommender')
 
 const blogSchema = new mongoose.Schema({
     title:{type: String, required: true},
@@ -15,6 +18,14 @@ const blogSchema = new mongoose.Schema({
 },{
     timestamps: true
 })
+
+blogSchema.methods.recommender = async function(){
+    const main_blog = this
+    const blogs = await Blog.find()
+
+    const similarity = recommender(main_blog.content, blogs.map((blog) => {return blog.content}))
+    return similarity
+}
 
 const Blog = mongoose.model('blogs', blogSchema)
 module.exports = Blog
