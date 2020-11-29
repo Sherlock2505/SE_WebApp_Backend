@@ -83,6 +83,9 @@ router.get('/single/:id', async(req, res) => {
         if(!blog){
             res.status(404).send()
         }
+        await blog.populate({
+            path: 'tags'
+        }).execPopulate()
 
         res.send(blog)
     }catch(e){
@@ -268,7 +271,7 @@ router.post('/recommend/:user_id/:blog_id', async (req, res) => {
         if(!user) throw new Error()
 
         if(user.fav_blogs.includes(blog_id)) throw new Error({msg: "blog to be recommended already in favourite blogs"})
-        user.populate({
+        await user.populate({
             path: 'fav_blogs'
         }).execPopulate()
 
