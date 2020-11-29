@@ -36,6 +36,7 @@ router.post('/create', editor_auth, upload.single('thumbnail'), async(req, res) 
     delete req.body.custom_tags
     const blog = new Blog({
         ...req.body,
+        author: req.editor_user.name,
         owner: req.editor_user._id,
         thumbnail: req.file.filename,
         meta: {
