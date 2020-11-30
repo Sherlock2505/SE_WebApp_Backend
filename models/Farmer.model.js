@@ -83,8 +83,6 @@ farmerSchema.methods.toPublicProfile = function () {
     const userObj = user.toObject()
     delete userObj.password
     delete userObj.tokens
-    delete userObj.location
-    delete userObj.pincode
     delete userObj.fav_blogs
     
     return userObj
