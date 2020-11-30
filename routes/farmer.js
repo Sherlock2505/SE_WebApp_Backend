@@ -5,6 +5,7 @@ const multer = require('multer')
 const auth = require('../middleware/farmer_auth')
 const upload = require('../db/upload')
 const mongoose = require('mongoose')
+const Notification = require('../models/Notify.model')
 
 router.post('/signup', async (req, res) => {
 
@@ -100,6 +101,10 @@ router.get('/notifications/view', auth, async(req, res) => {
 router.post('/notifications/delete/:id', auth, async(req, res) => {
     try{
         const not = await Notification.deleteOne({_id: req.params._id})
+        req.farmer_user.notifications = req.farmer_user.notifications.filter((not) => {
+            not._id !== req.params.id
+        })
+        await req.farmer_user.save()
         res.send({msg: "deleted notification"})
     }catch(e){
         res.status(400).send(e)

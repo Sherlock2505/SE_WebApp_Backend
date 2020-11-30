@@ -133,6 +133,10 @@ router.get('/notifications/view', auth, async(req, res) => {
 router.post('/notifications/delete/:id', auth, async(req, res) => {
     try{
         const not = await Notification.deleteOne({_id: req.params._id})
+        req.dealer_user.notifications = req.dealer_user.notifications.filter((not) => {
+            not._id !== req.params.id
+        })
+        await req.dealer_user.save()
         res.send({msg: "deleted notification"})
     }catch(e){
         res.status(400).send(e)
